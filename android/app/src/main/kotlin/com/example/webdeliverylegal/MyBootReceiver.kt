@@ -21,7 +21,7 @@ class MyBootReceiver : BroadcastReceiver() {
                 
                 // Inicia o aplicativo
                 context.startActivity(launchIntent)
-            }, 5000) // Atraso de 5 segundos (5000 milissegundos)
+            }, 1500) // Atraso de 5 segundos (5000 milissegundos)
         }
     }
 }
