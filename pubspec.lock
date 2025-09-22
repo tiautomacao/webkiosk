@@ -62,6 +62,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_autostart:
+    dependency: "direct main"
+    description:
+      name: flutter_autostart
+      sha256: eb8a5300f41130edf603a4ab70c91017e1caf26922a1715b93622ff01a1c88b5
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -76,7 +84,7 @@ packages:
     source: sdk
     version: "0.0.0"
   kiosk_mode:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: kiosk_mode
       sha256: "3606e0fa335309ac8c8daf799bbfdf5037cf7c44acc3588af82f8a59375e9293"
@@ -233,7 +241,7 @@ packages:
     source: hosted
     version: "15.0.2"
   webview_flutter:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: webview_flutter
       sha256: c3e4fe614b1c814950ad07186007eff2f2e5dd2935eba7b9a9a1af8e5885f1ba

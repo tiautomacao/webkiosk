@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:webdeliverylegal/services/kiosk_service.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
-
 import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import 'package:flutter_autostart/flutter_autostart.dart';
 
 class KioskScreen extends StatefulWidget {
   const KioskScreen({super.key});
@@ -13,7 +13,7 @@ class KioskScreen extends StatefulWidget {
 }
 
 class _KioskScreenState extends State<KioskScreen> {
-
+  final _autostart = FlutterAutostart();
   late final WebViewController _controller;
 
   @override
@@ -49,9 +49,19 @@ class _KioskScreenState extends State<KioskScreen> {
       ),
     )
     ..loadRequest(Uri.parse('https://qrcode.dvstore.com.br/qrcode/eyJwcmVmaXgiOiJxcmNvZGUiLCJjb2RlIjoiaUVpSzRZdERmTUR2Vk5lTjY1dnJxUDltIiwiY29tcGFueV9pZCI6IjJjMzY0MjVmLTc5MTMtNDE2My04MzY2LTViZTE1MDM2MWI0YiJ9'));
+    _inicializarPermissoes();
     _kioskService.entrarModoKiosk();
+
     }
-    //
+    Future<void> _inicializarPermissoes() async {
+      try {
+        // Pede a permissão de autostart (se necessário, abre um diálogo para o usuário)
+        await _autostart.showAutoStartPermissionSettings();
+        print('Permissão de Autostart (flutter_autostart) verificada.');
+      } catch(e) {
+        print('Erro ao inicializar autostart: $e');
+      }
+    }
 
 
   @override
