@@ -19,7 +19,7 @@ class _KioskScreenState extends State<KioskScreen> {
   @override
   void initState() {
     super.initState();
-    final KioskService _kioskService = KioskService();
+    final KioskService kioskService = KioskService();
     _controller = WebViewController()
     ..setJavaScriptMode(JavaScriptMode.unrestricted)
     ..setNavigationDelegate(
@@ -33,12 +33,12 @@ class _KioskScreenState extends State<KioskScreen> {
         },
         onHttpError: (HttpResponseError){},
         onWebResourceError: (WebResourceError error){
-                print('''
-        Erro ao carregar a página:
-          Código do Erro: ${error.errorCode}
-          Descrição: ${error.description}
-          URL: ${error.url}
-      ''');
+            print('''
+          Erro ao carregar a página:
+            Código do Erro: ${error.errorCode}
+            Descrição: ${error.description}
+            URL: ${error.url}
+          ''');
         },
         onNavigationRequest: (NavigationRequest request) {
           if (!request.url.startsWith('https://webcabofrio-rj.dvstore.com.br')){
@@ -50,19 +50,17 @@ class _KioskScreenState extends State<KioskScreen> {
     )
     ..loadRequest(Uri.parse('https://qrcode.dvstore.com.br/qrcode/eyJwcmVmaXgiOiJxcmNvZGUiLCJjb2RlIjoiaUVpSzRZdERmTUR2Vk5lTjY1dnJxUDltIiwiY29tcGFueV9pZCI6IjJjMzY0MjVmLTc5MTMtNDE2My04MzY2LTViZTE1MDM2MWI0YiJ9'));
     _inicializarPermissoes();
-    _kioskService.entrarModoKiosk();
+    kioskService.entrarModoKiosk();
+  }
 
+  Future<void> _inicializarPermissoes() async {
+    try {
+      await _autostart.showAutoStartPermissionSettings();
+      print('Diálogo de permissão de Autostart exibido.');
+    } catch(e) {
+      print('Erro ao inicializar autostart: $e');
     }
-    Future<void> _inicializarPermissoes() async {
-      try {
-        // Pede a permissão de autostart (se necessário, abre um diálogo para o usuário)
-        await _autostart.showAutoStartPermissionSettings();
-        print('Permissão de Autostart (flutter_autostart) verificada.');
-      } catch(e) {
-        print('Erro ao inicializar autostart: $e');
-      }
-    }
-
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -37,6 +37,8 @@ dependencies:
   webview_flutter: ^4.13.0
   kiosk_mode: ^0.7.0+1
   flutter_autostart: ^0.0.2
+  permission_handler: ^11.3.1
+  app_settings: ^5.0.0
 
 dev_dependencies:
   flutter_test:
