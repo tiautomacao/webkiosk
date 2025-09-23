@@ -1,7 +1,7 @@
 // Este é o seu arquivo password_screen.dart
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
-import 'package:webdeliverylegal/screen/config_screen.dart'; // Importe a tela de configurações
+import 'package:webdeliverylegal/screen/config_screen.dart';
 
 class PasswordScreen extends StatefulWidget {
   const PasswordScreen({super.key});
@@ -11,33 +11,87 @@ class PasswordScreen extends StatefulWidget {
 }
 
 class _PasswordScreenState extends State<PasswordScreen> {
+  final TextEditingController _pinController = TextEditingController();
+
+  @override
+  void dispose() {
+    _pinController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Adicione um Scaffold aqui para fornecer o Material
     return Scaffold(
       appBar: AppBar(
         title: const Text('Digite a Senha'),
       ),
       body: Center(
-        child: _buildPinPut(),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // Título acima do campo de senha
+              const Text(
+                'Senha de Administrador',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              _buildPinPut(),
+            ],
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildPinPut() {
-    final String defaultPin = "1234";
+    const String defaultPin = "1234";
+
+    // Define o tema com as bordas aparecendo
+    final defaultPinTheme = PinTheme(
+      width: 56,
+      height: 56,
+      textStyle: const TextStyle(
+        fontSize: 20,
+        color: Color.fromRGBO(30, 60, 87, 1),
+        fontWeight: FontWeight.w600,
+      ),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.blueAccent, width: 2), // Cor e espessura das bordas
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
 
     return Pinput(
-      onCompleted: (pin) {
+      controller: _pinController,
+      obscureText: true,
+      defaultPinTheme: defaultPinTheme,
+      // Você pode definir a cor das bordas quando o campo está focado ou preenchido
+      focusedPinTheme: defaultPinTheme.copyDecorationWith(
+        border: Border.all(color: Colors.blue, width: 3),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      submittedPinTheme: defaultPinTheme.copyWith(
+        decoration: defaultPinTheme.decoration!.copyWith(
+          //color: Colors.lightGreen.withOpacity(0.2),
+        ),
+      ),
+      onCompleted: (pin) async {
         if (pin == defaultPin) {
-          // A senha está correta, navegue para a tela de configurações
-          Navigator.push(
+          await Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => ConfigScreen()),
+            MaterialPageRoute(builder: (context) => const ConfigScreen()),
           );
+          Navigator.pop(context);
         } else {
-          // Senha incorreta, você pode exibir uma mensagem para o usuário
-          print('Senha incorreta!');
+          _pinController.clear();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Senha incorreta!'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       },
     );

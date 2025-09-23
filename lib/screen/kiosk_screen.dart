@@ -1,9 +1,10 @@
+// Seu arquivo kiosk_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
-// Importe a sua tela de senha
 import 'package:webdeliverylegal/screen/password_screen.dart';
+import 'package:webdeliverylegal/screen/qr_scanner_screen.dart';
 
 class KioskScreen extends StatefulWidget {
   const KioskScreen({super.key});
@@ -13,20 +14,33 @@ class KioskScreen extends StatefulWidget {
 }
 
 class _KioskScreenState extends State<KioskScreen> {
-  // Variável para controlar o estado do Future
   late Future<WebViewController> _controllerFuture;
+  // A URL salva será inicializada como null, para indicar que ainda não foi carregada.
+  String? _savedUrl;
 
   @override
   void initState() {
     super.initState();
-    // Inicializa o Future no initState
     _controllerFuture = _loadUrlAndInitializeWebView();
   }
 
-  // Função para carregar a URL e inicializar o WebView
   Future<WebViewController> _loadUrlAndInitializeWebView() async {
     final prefs = await SharedPreferences.getInstance();
-    final String savedUrl = prefs.getString('kiosk_url') ?? 'https://www.google.com';
+    String? urlFromPrefs = prefs.getString('kiosk_url');
+
+    // Atualiza a variável de estado com a URL carregada
+    setState(() {
+      _savedUrl = urlFromPrefs;
+    });
+
+    String urlToLoad = (urlFromPrefs != null && urlFromPrefs.isNotEmpty)
+        ? urlFromPrefs
+        : 'https://www.tiautomacaocomercial.com.br/';
+
+    // Adiciona o esquema http/https se estiver faltando
+    if (!urlToLoad.startsWith('http://') && !urlToLoad.startsWith('https://')) {
+      urlToLoad = 'https://$urlToLoad';
+    }
 
     final controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
@@ -41,26 +55,49 @@ class _KioskScreenState extends State<KioskScreen> {
           },
         ),
       )
-      ..loadRequest(Uri.parse(savedUrl));
+      ..loadRequest(Uri.parse(urlToLoad));
+
     return controller;
+  }
+
+  void _scanQrCode() async {
+    final String? url = await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const QrScannerScreen()),
+    );
+    if (url != null && url.isNotEmpty) {
+      _saveUrlAndReload(url);
+    }
+  }
+
+  void _saveUrlAndReload(String url) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('kiosk_url', url);
+
+    setState(() {
+      _controllerFuture = _loadUrlAndInitializeWebView();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    // Adicione esta condição para exibir a tela de carregamento inicial
+    if (_savedUrl == null) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       body: GestureDetector(
-        onLongPress: () {
+        onLongPress: () async {
           print('Toque longo detectado! Abrindo tela de senha...');
-          // Navega para a tela de senha e usa o .then()
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => PasswordScreen()),
-          ).then((_) {
-            // Este bloco será executado quando a PasswordScreen for fechada.
-            setState(() {
-              // Re-inicializa o Future para recarregar a URL
-              _controllerFuture = _loadUrlAndInitializeWebView();
-            });
+          );
+          setState(() {
+            _controllerFuture = _loadUrlAndInitializeWebView();
           });
         },
         child: FutureBuilder<WebViewController>(
@@ -76,6 +113,12 @@ class _KioskScreenState extends State<KioskScreen> {
           },
         ),
       ),
+      floatingActionButton: (_savedUrl == null || _savedUrl!.isEmpty)
+          ? FloatingActionButton(
+              onPressed: _scanQrCode,
+              child: const Icon(Icons.qr_code_scanner),
+            )
+          : null,
     );
   }
 }
