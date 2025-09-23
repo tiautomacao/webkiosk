@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:webdeliverylegal/services/kiosk_service.dart';
-import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
-import 'package:flutter_autostart/flutter_autostart.dart';
+
+// Importe a sua tela de senha
+import 'package:webdeliverylegal/screen/password_screen.dart';
 
 class KioskScreen extends StatefulWidget {
   const KioskScreen({super.key});
@@ -13,59 +13,69 @@ class KioskScreen extends StatefulWidget {
 }
 
 class _KioskScreenState extends State<KioskScreen> {
-  final _autostart = FlutterAutostart();
-  late final WebViewController _controller;
+  // Variável para controlar o estado do Future
+  late Future<WebViewController> _controllerFuture;
 
   @override
   void initState() {
     super.initState();
-    final KioskService kioskService = KioskService();
-    _controller = WebViewController()
-    ..setJavaScriptMode(JavaScriptMode.unrestricted)
-    ..setNavigationDelegate(
-      NavigationDelegate(
-        onProgress: (int progress) {
-
-        },
-        onPageStarted: (String url) {},
-        onPageFinished: (String url) {
-          print('Página carregada com sucesso: $url');
-        },
-        onHttpError: (HttpResponseError){},
-        onWebResourceError: (WebResourceError error){
-            print('''
-          Erro ao carregar a página:
-            Código do Erro: ${error.errorCode}
-            Descrição: ${error.description}
-            URL: ${error.url}
-          ''');
-        },
-        onNavigationRequest: (NavigationRequest request) {
-          if (!request.url.startsWith('https://webcabofrio-rj.dvstore.com.br')){
-            return NavigationDecision.prevent;
-          }
-          return NavigationDecision.navigate;
-        },
-      ),
-    )
-    ..loadRequest(Uri.parse('https://qrcode.dvstore.com.br/qrcode/eyJwcmVmaXgiOiJxcmNvZGUiLCJjb2RlIjoiaUVpSzRZdERmTUR2Vk5lTjY1dnJxUDltIiwiY29tcGFueV9pZCI6IjJjMzY0MjVmLTc5MTMtNDE2My04MzY2LTViZTE1MDM2MWI0YiJ9'));
-    _inicializarPermissoes();
-    kioskService.entrarModoKiosk();
+    // Inicializa o Future no initState
+    _controllerFuture = _loadUrlAndInitializeWebView();
   }
 
-  Future<void> _inicializarPermissoes() async {
-    try {
-      await _autostart.showAutoStartPermissionSettings();
-      print('Diálogo de permissão de Autostart exibido.');
-    } catch(e) {
-      print('Erro ao inicializar autostart: $e');
-    }
+  // Função para carregar a URL e inicializar o WebView
+  Future<WebViewController> _loadUrlAndInitializeWebView() async {
+    final prefs = await SharedPreferences.getInstance();
+    final String savedUrl = prefs.getString('kiosk_url') ?? 'https://www.google.com';
+
+    final controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {},
+          onPageFinished: (String url) {
+            print('Página carregada com sucesso: $url');
+          },
+          onWebResourceError: (WebResourceError error) {
+            print('Erro ao carregar a página: ${error.description}');
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(savedUrl));
+    return controller;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: WebViewWidget(controller: _controller),
+      body: GestureDetector(
+        onLongPress: () {
+          print('Toque longo detectado! Abrindo tela de senha...');
+          // Navega para a tela de senha e usa o .then()
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PasswordScreen()),
+          ).then((_) {
+            // Este bloco será executado quando a PasswordScreen for fechada.
+            setState(() {
+              // Re-inicializa o Future para recarregar a URL
+              _controllerFuture = _loadUrlAndInitializeWebView();
+            });
+          });
+        },
+        child: FutureBuilder<WebViewController>(
+          future: _controllerFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+              return WebViewWidget(controller: snapshot.data!);
+            } else if (snapshot.hasError) {
+              return const Center(child: Text('Erro ao inicializar o WebView'));
+            } else {
+              return const Center(child: CircularProgressIndicator());
+            }
+          },
+        ),
+      ),
     );
   }
 }
