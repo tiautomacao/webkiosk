@@ -1,3 +1,4 @@
+// Seu arquivo config_screen.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kiosk_mode/kiosk_mode.dart';

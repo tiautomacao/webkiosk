@@ -1,5 +1,4 @@
-// Seu arquivo kiosk_screen.dart
-
+// kiosk_screen.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -14,50 +13,54 @@ class KioskScreen extends StatefulWidget {
 }
 
 class _KioskScreenState extends State<KioskScreen> {
-  late Future<WebViewController> _controllerFuture;
-  // A URL salva será inicializada como null, para indicar que ainda não foi carregada.
+  WebViewController? _controller;
   String? _savedUrl;
+  bool _isWebViewReady = false;
 
   @override
   void initState() {
     super.initState();
-    _controllerFuture = _loadUrlAndInitializeWebView();
+    _loadUrlAndInitializeWebView();
   }
 
-  Future<WebViewController> _loadUrlAndInitializeWebView() async {
+  Future<void> _loadUrlAndInitializeWebView() async {
     final prefs = await SharedPreferences.getInstance();
     String? urlFromPrefs = prefs.getString('kiosk_url');
-
-    // Atualiza a variável de estado com a URL carregada
-    setState(() {
-      _savedUrl = urlFromPrefs;
-    });
 
     String urlToLoad = (urlFromPrefs != null && urlFromPrefs.isNotEmpty)
         ? urlFromPrefs
         : 'https://www.tiautomacaocomercial.com.br/';
 
-    // Adiciona o esquema http/https se estiver faltando
     if (!urlToLoad.startsWith('http://') && !urlToLoad.startsWith('https://')) {
       urlToLoad = 'https://$urlToLoad';
     }
 
-    final controller = WebViewController()
+    _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {},
           onPageFinished: (String url) {
             print('Página carregada com sucesso: $url');
+            if (mounted) {
+              setState(() {
+                _isWebViewReady = true;
+                _savedUrl = urlFromPrefs;
+              });
+            }
           },
           onWebResourceError: (WebResourceError error) {
             print('Erro ao carregar a página: ${error.description}');
+            if (mounted) {
+              setState(() {
+                _isWebViewReady = true;
+                _savedUrl = urlFromPrefs;
+              });
+            }
           },
         ),
       )
       ..loadRequest(Uri.parse(urlToLoad));
-
-    return controller;
   }
 
   void _scanQrCode() async {
@@ -75,16 +78,18 @@ class _KioskScreenState extends State<KioskScreen> {
     await prefs.setString('kiosk_url', url);
 
     setState(() {
-      _controllerFuture = _loadUrlAndInitializeWebView();
+      _isWebViewReady = false;
+      _loadUrlAndInitializeWebView();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Adicione esta condição para exibir a tela de carregamento inicial
-    if (_savedUrl == null) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+    if (!_isWebViewReady || _controller == null) {
+      return Scaffold(
+        body: Center(
+          child: CircularProgressIndicator(color: Colors.blue),
+        ),
       );
     }
 
@@ -97,21 +102,11 @@ class _KioskScreenState extends State<KioskScreen> {
             MaterialPageRoute(builder: (context) => PasswordScreen()),
           );
           setState(() {
-            _controllerFuture = _loadUrlAndInitializeWebView();
+            _isWebViewReady = false;
+            _loadUrlAndInitializeWebView();
           });
         },
-        child: FutureBuilder<WebViewController>(
-          future: _controllerFuture,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-              return WebViewWidget(controller: snapshot.data!);
-            } else if (snapshot.hasError) {
-              return const Center(child: Text('Erro ao inicializar o WebView'));
-            } else {
-              return const Center(child: CircularProgressIndicator());
-            }
-          },
-        ),
+        child: WebViewWidget(controller: _controller!),
       ),
       floatingActionButton: (_savedUrl == null || _savedUrl!.isEmpty)
           ? FloatingActionButton(

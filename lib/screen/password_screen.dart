@@ -31,7 +31,6 @@ class _PasswordScreenState extends State<PasswordScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Título acima do campo de senha
               const Text(
                 'Senha de Administrador',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -48,7 +47,6 @@ class _PasswordScreenState extends State<PasswordScreen> {
   Widget _buildPinPut() {
     const String defaultPin = "1234";
 
-    // Define o tema com as bordas aparecendo
     final defaultPinTheme = PinTheme(
       width: 56,
       height: 56,
@@ -58,7 +56,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
         fontWeight: FontWeight.w600,
       ),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.blueAccent, width: 2), // Cor e espessura das bordas
+        border: Border.all(color: Colors.blueAccent, width: 2),
         borderRadius: BorderRadius.circular(12),
       ),
     );
@@ -67,14 +65,13 @@ class _PasswordScreenState extends State<PasswordScreen> {
       controller: _pinController,
       obscureText: true,
       defaultPinTheme: defaultPinTheme,
-      // Você pode definir a cor das bordas quando o campo está focado ou preenchido
       focusedPinTheme: defaultPinTheme.copyDecorationWith(
         border: Border.all(color: Colors.blue, width: 3),
         borderRadius: BorderRadius.circular(12),
       ),
       submittedPinTheme: defaultPinTheme.copyWith(
         decoration: defaultPinTheme.decoration!.copyWith(
-          //color: Colors.lightGreen.withOpacity(0.2),
+          color: Colors.lightGreen.withOpacity(0.2),
         ),
       ),
       onCompleted: (pin) async {
@@ -83,7 +80,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
             context,
             MaterialPageRoute(builder: (context) => const ConfigScreen()),
           );
-          Navigator.pop(context);
+          Navigator.pop(context); // Essa linha faz a tela fechar e voltar para o KioskScreen
         } else {
           _pinController.clear();
           ScaffoldMessenger.of(context).showSnackBar(
