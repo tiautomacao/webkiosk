@@ -136,8 +136,9 @@ class _KioskScreenState extends State<KioskScreen> {
       ),
       floatingActionButton: (_savedUrl == null || _savedUrl!.isEmpty)
           ? FloatingActionButton(
+            backgroundColor: Colors.white70,
               onPressed: _scanQrCode,
-              child: const Icon(Icons.qr_code_scanner),
+              child: const Icon(Icons.qr_code_scanner, color: Color(0xFF0061fe),),
             )
           : null,
     );

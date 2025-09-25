@@ -46,7 +46,14 @@ class _ConfigScreenState extends State<ConfigScreen> {
               child: ElevatedButton.icon(
                 onPressed: _scanQrCode,
                 icon: const Icon(Icons.qr_code_scanner),
-                label: const Text('Ler QR Code'),
+                label: const Text('Ler QR Code', 
+                style: TextStyle(
+                  color: Color(0xFF0061fe)
+                )),
+                style: ElevatedButton.styleFrom(
+                  iconColor: Color(0xFF0061fe)
+                  
+                ),
               ),
             ),
             const SizedBox(height: 20),
@@ -61,6 +68,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
             SwitchListTile(
               title: const Text('Modo Bloqueado'),
               value: _isLockedModeEnabled,
+              activeColor: Color(0xFF0061fe),
               onChanged: (bool value) {
                 setState(() {
                   _isLockedModeEnabled = value;
@@ -70,6 +78,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
             SwitchListTile(
               title: const Text('Modo Foco'),
               value: _isFocusModeEnabled,
+              activeColor: Color(0xFF0061fe),
               onChanged: (bool value) {
                 setState(() {
                   _isFocusModeEnabled = value;
@@ -78,7 +87,10 @@ class _ConfigScreenState extends State<ConfigScreen> {
             ),
             ElevatedButton(
               onPressed: _showConfirmDialog,
-              child: const Text('Salvar Configurações'),
+              child: const Text('Salvar Configurações', 
+              style: TextStyle(
+                color: Color(0xFF0061fe)
+              ),),
             ),
           ],
         ),

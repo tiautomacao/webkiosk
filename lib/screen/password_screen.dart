@@ -70,7 +70,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
       ),
       submittedPinTheme: defaultPinTheme.copyWith(
         decoration: defaultPinTheme.decoration!.copyWith(
-          color: Colors.lightGreen.withOpacity(0.2),
+          //color: Colors.lightGreen.withOpacity(0.2),
         ),
       ),
       onCompleted: (pin) async {
@@ -79,6 +79,7 @@ class _PasswordScreenState extends State<PasswordScreen> {
             context,
             MaterialPageRoute(builder: (context) => const ConfigScreen()),
           );
+          _pinController.clear();
         } else {
           _pinController.clear();
           ScaffoldMessenger.of(context).showSnackBar(
