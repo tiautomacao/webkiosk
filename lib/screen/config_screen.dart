@@ -1,8 +1,8 @@
-// Seu arquivo config_screen.dart
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kiosk_mode/kiosk_mode.dart';
 import 'package:flutter_autostart/flutter_autostart.dart';
+import 'package:webdeliverylegal/screen/kiosk_screen.dart';
 import 'package:webdeliverylegal/screen/qr_scanner_screen.dart';
 
 class ConfigScreen extends StatefulWidget {

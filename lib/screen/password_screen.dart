@@ -1,4 +1,3 @@
-// Este é o seu arquivo password_screen.dart
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:webdeliverylegal/screen/config_screen.dart';
@@ -76,11 +75,10 @@ class _PasswordScreenState extends State<PasswordScreen> {
       ),
       onCompleted: (pin) async {
         if (pin == defaultPin) {
-          await Navigator.push(
+          Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => const ConfigScreen()),
           );
-          Navigator.pop(context); // Essa linha faz a tela fechar e voltar para o KioskScreen
         } else {
           _pinController.clear();
           ScaffoldMessenger.of(context).showSnackBar(

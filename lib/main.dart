@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:webdeliverylegal/screen/kiosk_screen.dart';
 
