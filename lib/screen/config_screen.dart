@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_kiosk_mode/flutter_kiosk_mode.dart';
+//import 'package:kiosk/kiosk.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:kiosk_mode/kiosk_mode.dart';
+//import 'package:kiosk_mode/kiosk_mode.dart';
 import 'package:flutter_autostart/flutter_autostart.dart';
 import 'package:webdeliverylegal/screen/kiosk_screen.dart';
 import 'package:webdeliverylegal/screen/qr_scanner_screen.dart';
@@ -147,6 +149,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
   }
 
   void _saveSettingsAndExit() async {
+    final _flutterKioskMode = FlutterKioskMode.instance();
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('kiosk_url', _urlController.text);
     await prefs.setBool('is_locked_mode_enabled', _isLockedModeEnabled);
@@ -154,9 +157,9 @@ class _ConfigScreenState extends State<ConfigScreen> {
     print('Configurações salvas!');
 
     if (_isLockedModeEnabled) {
-      await startKioskMode();
+      await _flutterKioskMode.start();
     } else {
-      await stopKioskMode();
+      await _flutterKioskMode.stop();
     }
     
     if (_isFocusModeEnabled) {
